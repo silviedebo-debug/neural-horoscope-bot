@@ -1,2 +1,66 @@
-# neural-horoscope-bot
-NeuroHoroscopeBot — Your Telegram gateway to daily absurdity. It scrapes the @neural_horo channel for surreal, non-serious horoscopes and sends them directly to you. Just type your zodiac sign and brace yourself for a laugh.
+# 🌟 Нейрогороскоп-бот
+
+Telegram-бот, который парсит юмористический гороскоп из публичного Telegram-канала
+и по запросу отдаёт пользователю прогноз для его знака зодиака.
+
+Пет-проект, сделанный с упором на аккуратную архитектуру, безопасность и
+экономичность внешних API-вызовов — а не только на "чтобы работало".
+
+## Возможности
+- Отвечает на `/start` и на ввод знака зодиака (♈️–♓️) моментально, из локального кэша.
+- Раз в сутки автоматически подтягивает свежий пост из канала через Apify-актор и парсит его на 12 знаков.
+- Не делает лишних платных вызовов Apify: обновление строго по расписанию, все пользовательские запросы обслуживаются из SQLite-кэша.
+- Ежедневная сводка администратору: кто и сколько раз пользовался ботом за последние сутки.
+- Rate limiting на пользователя — защита от флуда.
+- Автоматические ретраи с backoff при сетевых сбоях внешнего API.
+- Ежедневный бэкап базы данных.
+
+## Стек
+Python 3.11+, python-telegram-bot 21.x (async, JobQueue), SQLite (WAL-режим), Apify Client, pytest.
+
+## Архитектура
+
+```
+main.py               — точка входа, сборка приложения
+bot/
+  config.py            — конфигурация и валидация переменных окружения
+  db.py                 — слой доступа к данным (SQLite)
+  parser.py             — чистая функция парсинга текста гороскопа (покрыта тестами)
+  apify_service.py       — обращение к Apify с ретраями
+  handlers.py            — обработчики команд Telegram
+  scheduler.py            — плановые задачи (обновление кэша, отчёт, бэкап)
+  ratelimit.py             — защита от флуда
+tests/
+  test_parser.py           — unit-тесты парсера
+```
+
+Разделение на модули с чёткой ответственностью каждого (config / data / business logic /
+delivery) — сознательное архитектурное решение, а не просто "разбить файл на части":
+`parser.py` не знает о Telegram и БД, поэтому тестируется в изоляции без моков.
+
+## Локальный запуск
+
+```bash
+git clone <ваш-репозиторий>
+cd horoscope-bot
+python -m venv venv
+source venv/bin/activate       # Windows: venv\Scripts\activate
+pip install -r requirements-dev.txt
+cp .env.example .env           # заполнить реальными токенами
+export $(cat .env | xargs)     # Windows: используйте python-dotenv или задайте переменные вручную
+python main.py
+```
+
+## Тесты
+
+```bash
+python -m pytest tests/ -v
+```
+
+## Деплой
+
+Подробная пошаговая инструкция по развёртыванию на Railway.app — в [DEPLOY.md](DEPLOY.md).
+
+## Безопасность
+
+Обзор мер безопасности и почему они приняты именно так — в [SECURITY.md](SECURITY.md).
