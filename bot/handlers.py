@@ -23,6 +23,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "🌟 Привет! Я — бот Нейрогороскоп с баяном.\n\n"
         "Просто напиши название своего знака зодиака:\n"
+        "Овен, Телец, Близнецы, Рак, Лев, Дева, Весы, Скорпион, Стрелец, Козерог, Водолей, Рыбы\n\n"
+        "⏳ Настраиваю баян, секунду...
         f"{SIGNS_HELP_TEXT}"
     )
 
@@ -44,7 +46,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cache_data = load_cache()
 
     if not cache_data:
-        await update.message.reply_text("😔 Гороскоп ещё не загружен, попробуй чуть позже.")
+        await update.message.reply_text("😔 Гороскоп ещё не забаянен, попробуй чуть позже.")
         return
 
     if sign_name in cache_data:
